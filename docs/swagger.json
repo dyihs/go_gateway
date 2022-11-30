@@ -1,8 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {},
-        "license": {}
+        "contact": {}
     },
     "paths": {
         "/demo/bind": {
@@ -79,22 +78,37 @@
         "middleware.Response": {
             "type": "object",
             "properties": {
-                "data": {
-                    "type": "object"
-                },
+                "data": {},
                 "errmsg": {
                     "type": "string"
                 },
                 "errno": {
-                    "type": "integer"
+                    "$ref": "#/definitions/middleware.ResponseCode"
                 },
-                "stack": {
-                    "type": "object"
-                },
-                "trace_id": {
-                    "type": "object"
-                }
+                "stack": {},
+                "trace_id": {}
             }
+        },
+        "middleware.ResponseCode": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                401,
+                1000,
+                2001
+            ],
+            "x-enum-varnames": [
+                "SuccessCode",
+                "UndefErrorCode",
+                "ValidErrorCode",
+                "InternalErrorCode",
+                "InvalidRequestErrorCode",
+                "CustomizeCode",
+                "GROUPALL_SAVE_FLOWERROR"
+            ]
         }
     }
 }

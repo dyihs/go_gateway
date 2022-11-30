@@ -17,20 +17,34 @@ definitions:
     type: object
   middleware.Response:
     properties:
-      data:
-        type: object
+      data: {}
       errmsg:
         type: string
       errno:
-        type: integer
-      stack:
-        type: object
-      trace_id:
-        type: object
+        $ref: '#/definitions/middleware.ResponseCode'
+      stack: {}
+      trace_id: {}
     type: object
+  middleware.ResponseCode:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 401
+    - 1000
+    - 2001
+    type: integer
+    x-enum-varnames:
+    - SuccessCode
+    - UndefErrorCode
+    - ValidErrorCode
+    - InternalErrorCode
+    - InvalidRequestErrorCode
+    - CustomizeCode
+    - GROUPALL_SAVE_FLOWERROR
 info:
   contact: {}
-  license: {}
 paths:
   /demo/bind:
     post:
