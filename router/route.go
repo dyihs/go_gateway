@@ -9,6 +9,7 @@ import (
 	"go_gateway/controller"
 	"go_gateway/docs"
 	"go_gateway/middleware"
+	"log"
 )
 
 // @title Swagger Example API
@@ -57,7 +58,7 @@ import (
 // @x-extension-openapi {"example": "value on a json format"}
 
 func InitRouter(middlewares ...gin.HandlerFunc) *gin.Engine {
-	// programatically set swagger info
+	// programmatically set swagger info
 	docs.SwaggerInfo.Title = lib.GetStringConf("base.swagger.title")
 	docs.SwaggerInfo.Description = lib.GetStringConf("base.swagger.desc")
 	docs.SwaggerInfo.Version = "1.0"
@@ -74,34 +75,20 @@ func InitRouter(middlewares ...gin.HandlerFunc) *gin.Engine {
 	})
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	//demo
-	v1 := router.Group("/demo")
-	v1.Use(middleware.RecoveryMiddleware(), middleware.RequestLog(), middleware.IPAuthMiddleware(), middleware.TranslationMiddleware())
-	{
-		controller.DemoRegister(v1)
+	// 登陆接口
+	adminLoginRouter := router.Group("/admin_login")
+	store, err := sessions.NewRedisStore(10, "tcp", "localhost:6379", "",
+		[]byte("secret"))
+	if err != nil {
+		log.Fatalf("sessions.NewRedisStore err: %v\n", err)
 	}
-
-	//非登陆接口
-	store := sessions.NewCookieStore([]byte("secret"))
-	apiNormalGroup := router.Group("/api")
-	apiNormalGroup.Use(sessions.Sessions("mysession", store),
-		middleware.RecoveryMiddleware(),
-		middleware.RequestLog(),
-		middleware.TranslationMiddleware())
-	{
-		controller.ApiRegister(apiNormalGroup)
-	}
-
-	//登陆接口
-	apiAuthGroup := router.Group("/api")
-	apiAuthGroup.Use(
+	adminLoginRouter.Use(
 		sessions.Sessions("mysession", store),
 		middleware.RecoveryMiddleware(),
 		middleware.RequestLog(),
-		middleware.SessionAuthMiddleware(),
 		middleware.TranslationMiddleware())
 	{
-		controller.ApiLoginRegister(apiAuthGroup)
+		controller.AdminLoginRegister(adminLoginRouter)
 	}
 	return router
 }
