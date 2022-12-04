@@ -47,7 +47,7 @@ func (adminLogin *AdminLoginController) AdminLogin(ctx *gin.Context) {
 	//// 设置session
 	//sessInfo := &dto.AdminSessionInfo{
 	//	ID:        admin.Id,
-	//	UserName:  admin.UserName,
+	//	UserName:  admin.UserName,oo
 	//	LogInTime: time.Now()}
 	//sessByte, err := json.Marshal(sessInfo)
 	//if err != nil {
