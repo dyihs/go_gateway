@@ -49,7 +49,7 @@ func TranslationMiddleware() gin.HandlerFunc {
 				return fl.Field().String() == "admin"
 			})
 
-			//自定义验证器
+			//自定义翻译器
 			//https://github.com/go-playground/validator/blob/v9/_examples/translations/main.go
 			val.RegisterTranslation("is_valid_username", trans, func(ut ut.Translator) error {
 				return ut.Add("is_valid_username", "{0} 填写不正确哦", true)

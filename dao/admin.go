@@ -1,9 +1,9 @@
 package dao
 
 import (
-	"errors"
 	"github.com/e421083458/gorm"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"go_gateway/dto"
 	"go_gateway/public"
 	"time"
@@ -23,6 +23,15 @@ func (t *Admin) TableName() string {
 	return "gateway_admin"
 }
 
+func (t *Admin) Find(ctx *gin.Context, tx *gorm.DB, search *Admin) (*Admin, error) {
+	out := &Admin{}
+	err := tx.SetCtx(public.GetGinTraceContext(ctx)).Where(search).Find(out).Error
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (t *Admin) LoginCheck(ctx *gin.Context, tx *gorm.DB, param *dto.AdminLoginInput) (*Admin, error) {
 	adminInfo, err := t.Find(ctx, tx, &Admin{UserName: param.UserName, IsDelete: 0})
 	if err != nil {
@@ -33,13 +42,4 @@ func (t *Admin) LoginCheck(ctx *gin.Context, tx *gorm.DB, param *dto.AdminLoginI
 		return nil, errors.New("密码错误，请重新输入")
 	}
 	return adminInfo, nil
-}
-
-func (t *Admin) Find(ctx *gin.Context, tx *gorm.DB, search *Admin) (*Admin, error) {
-	out := &Admin{}
-	err := tx.SetCtx(public.GetGinTraceContext(ctx)).Where(search).Find(out).Error
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
