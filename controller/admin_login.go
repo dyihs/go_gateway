@@ -2,11 +2,12 @@ package controller
 
 import (
 	"encoding/json"
+	"github.com/e421083458/golang_common/lib"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"go_gateway/dao"
 	"go_gateway/dto"
-	"go_gateway/golang_common/lib"
+
 	"go_gateway/middleware"
 	"go_gateway/public"
 	"time"
@@ -63,6 +64,6 @@ func (adminLogin *AdminLoginController) AdminLogin(ctx *gin.Context) {
 	sess := sessions.Default(ctx)
 	sess.Set(public.AdminSessionInfoKey, string(sessByte))
 	sess.Save()
-	out := &dto.AdminLoginOutput{Token: params.UserName}
+	out := &dto.AdminLoginOutput{Token: admin.UserName}
 	middleware.ResponseSuccess(ctx, out)
 }

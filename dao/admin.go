@@ -1,11 +1,11 @@
 package dao
 
 import (
-	"github.com/e421083458/gorm"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"go_gateway/dto"
 	"go_gateway/public"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -25,7 +25,8 @@ func (t *Admin) TableName() string {
 
 func (t *Admin) Find(ctx *gin.Context, tx *gorm.DB, search *Admin) (*Admin, error) {
 	out := &Admin{}
-	err := tx.SetCtx(public.GetGinTraceContext(ctx)).Where(search).Find(out).Error
+	//err := tx.SetCtx(public.GetGinTraceContext(ctx)).Where(search).Find(out).Error
+	err := tx.WithContext(ctx).Where(search).Find(out).Error
 	if err != nil {
 		return nil, err
 	}
