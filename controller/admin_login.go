@@ -50,6 +50,7 @@ func (adminLogin *AdminLoginController) AdminLogin(ctx *gin.Context) {
 		middleware.ResponseError(ctx, 2002, err)
 		return
 	}
+
 	// 设置session
 	sessInfo := &dto.AdminSessionInfo{
 		ID:        admin.Id,

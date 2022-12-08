@@ -62,6 +62,53 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/demo/bind": {
+            "post": {
+                "description": "测试数据绑定",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户"
+                ],
+                "summary": "测试数据绑定",
+                "operationId": "/demo/bind",
+                "parameters": [
+                    {
+                        "description": "body",
+                        "name": "polygon",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.DemoInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/middleware.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.DemoInput"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -73,10 +120,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "password": {
+                    "description": "密码",
                     "type": "string",
                     "example": "123456"
                 },
                 "username": {
+                    "description": "管理员用户名",
                     "type": "string",
                     "example": "admin"
                 }
@@ -86,8 +135,31 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "token": {
+                    "description": "token",
                     "type": "string",
                     "example": "token"
+                }
+            }
+        },
+        "dto.DemoInput": {
+            "type": "object",
+            "required": [
+                "age",
+                "name",
+                "passwd"
+            ],
+            "properties": {
+                "age": {
+                    "type": "integer",
+                    "example": 20
+                },
+                "name": {
+                    "type": "string",
+                    "example": "姓名"
+                },
+                "passwd": {
+                    "type": "string",
+                    "example": "123456"
                 }
             }
         },
