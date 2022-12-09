@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/e421083458/golang_common/lib"
 	"go_gateway/router"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/e421083458/golang_common/lib"
 )
 
 func main() {
