@@ -1,4 +1,21 @@
 definitions:
+  dto.AdminInfoOutput:
+    properties:
+      avatar:
+        type: string
+      id:
+        type: integer
+      introduction:
+        type: string
+      login_time:
+        type: string
+      name:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+    type: object
   dto.AdminLoginInput:
     properties:
       password:
@@ -19,22 +36,6 @@ definitions:
         description: token
         example: token
         type: string
-    type: object
-  dto.DemoInput:
-    properties:
-      age:
-        example: 20
-        type: integer
-      name:
-        example: 姓名
-        type: string
-      passwd:
-        example: "123456"
-        type: string
-    required:
-    - age
-    - name
-    - passwd
     type: object
   middleware.Response:
     properties:
@@ -67,6 +68,34 @@ definitions:
 info:
   contact: {}
 paths:
+  /admin/admin_info:
+    get:
+      consumes:
+      - application/json
+      description: 管理员信息获取
+      operationId: /admin/admin_info
+      parameters:
+      - description: body
+        in: body
+        name: polygon
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AdminLoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            allOf:
+            - $ref: '#/definitions/middleware.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.AdminInfoOutput'
+              type: object
+      summary: 管理员信息获取
+      tags:
+      - 管理员接口
   /admin_login/login:
     post:
       consumes:
@@ -95,32 +124,4 @@ paths:
       summary: 管理员登录
       tags:
       - 管理员接口
-  /demo/bind:
-    post:
-      consumes:
-      - application/json
-      description: 测试数据绑定
-      operationId: /demo/bind
-      parameters:
-      - description: body
-        in: body
-        name: polygon
-        required: true
-        schema:
-          $ref: '#/definitions/dto.DemoInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: success
-          schema:
-            allOf:
-            - $ref: '#/definitions/middleware.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.DemoInput'
-              type: object
-      summary: 测试数据绑定
-      tags:
-      - 用户
 swagger: "2.0"

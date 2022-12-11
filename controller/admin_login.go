@@ -55,16 +55,17 @@ func (adminLogin *AdminLoginController) AdminLogin(ctx *gin.Context) {
 	sessInfo := &dto.AdminSessionInfo{
 		ID:        admin.Id,
 		UserName:  admin.UserName,
-		LogInTime: time.Now()}
+		LogInTime: time.Now(),
+	}
 	sessByte, err := json.Marshal(sessInfo)
 	if err != nil {
 		middleware.ResponseError(ctx, 2003, err)
 		return
 	}
-
 	sess := sessions.Default(ctx)
 	sess.Set(public.AdminSessionInfoKey, string(sessByte))
 	sess.Save()
+
 	out := &dto.AdminLoginOutput{Token: admin.UserName}
 	middleware.ResponseSuccess(ctx, out)
 }

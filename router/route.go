@@ -77,8 +77,7 @@ func InitRouter(middlewares ...gin.HandlerFunc) *gin.Engine {
 
 	// 登陆接口
 	adminLoginRouter := router.Group("/admin_login")
-	store, err := sessions.NewRedisStore(10, "tcp", "localhost:6379", "",
-		[]byte("secret"))
+	store, err := sessions.NewRedisStore(10, "tcp", "127.0.0.1:6379", "", []byte("secret"))
 	if err != nil {
 		log.Fatalf("sessions.NewRedisStore err: %v\n", err)
 	}
@@ -90,5 +89,17 @@ func InitRouter(middlewares ...gin.HandlerFunc) *gin.Engine {
 	{
 		controller.AdminLoginRegister(adminLoginRouter)
 	}
+
+	adminRouter := router.Group("/admin")
+	adminRouter.Use(
+		sessions.Sessions("mysession", store),
+		middleware.RecoveryMiddleware(),
+		middleware.RequestLog(),
+		middleware.SessionAuthMiddleware(),
+		middleware.TranslationMiddleware())
+	{
+		controller.AdminRegister(adminRouter)
+	}
+
 	return router
 }

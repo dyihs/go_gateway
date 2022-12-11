@@ -4,16 +4,17 @@ import (
 	"errors"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"go_gateway/public"
 )
 
 func SessionAuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		session := sessions.Default(c)
-		if name,ok:=session.Get("user").(string);!ok||name==""{
-			ResponseError(c, InternalErrorCode, errors.New("user not login"))
-			c.Abort()
+	return func(ctx *gin.Context) {
+		sess := sessions.Default(ctx)
+		if adminInfo, ok := sess.Get(public.AdminSessionInfoKey).(string); !ok || adminInfo == "" {
+			ResponseError(ctx, InternalErrorCode, errors.New("user not login"))
+			ctx.Abort()
 			return
 		}
-		c.Next()
+		ctx.Next()
 	}
 }
