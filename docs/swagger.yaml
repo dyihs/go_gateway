@@ -74,13 +74,6 @@ paths:
       - application/json
       description: 管理员信息获取
       operationId: /admin/admin_info
-      parameters:
-      - description: body
-        in: body
-        name: polygon
-        required: true
-        schema:
-          $ref: '#/definitions/dto.AdminLoginInput'
       produces:
       - application/json
       responses:

@@ -30,17 +30,6 @@ const docTemplate = `{
                 ],
                 "summary": "管理员信息获取",
                 "operationId": "/admin/admin_info",
-                "parameters": [
-                    {
-                        "description": "body",
-                        "name": "polygon",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.AdminLoginInput"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "success",

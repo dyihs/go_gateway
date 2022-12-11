@@ -25,7 +25,6 @@ func AdminRegister(group *gin.RouterGroup) {
 // @ID /admin/admin_info
 // @Accept  json
 // @Produce  json
-// @Param polygon body dto.AdminLoginInput true "body"
 // @Success 200 {object} middleware.Response{data=dto.AdminInfoOutput} "success"
 // @Router /admin/admin_info [get]
 func (adminInfo *AdminController) AdminInfo(ctx *gin.Context) {
