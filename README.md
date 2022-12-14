@@ -5,7 +5,7 @@ git clone git@github.com:e421083458/gin_scaffold.git
 cd gin_scaffold
 go mod tidy
 ```
-- 确保正确配置了 conf/mysql_map.toml、conf/redis_map.toml：
+确保正确配置了 conf/mysql_map.toml、conf/redis_map.toml：
 
 ### 运行
 
