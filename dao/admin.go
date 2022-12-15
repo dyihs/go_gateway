@@ -45,3 +45,8 @@ func (t *Admin) LoginCheck(ctx *gin.Context, tx *gorm.DB, param *dto.AdminLoginI
 	}
 	return adminInfo, nil
 }
+
+func (t *Admin) Save(ctx *gin.Context, tx *gorm.DB) error {
+	//err := tx.SetCtx(public.GetGinTraceContext(ctx)).Where(search).Find(out).Error
+	return tx.WithContext(ctx).Save(t).Error
+}

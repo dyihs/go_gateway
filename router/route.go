@@ -91,7 +91,7 @@ func InitRouter(middlewares ...gin.HandlerFunc) *gin.Engine {
 		controller.AdminLoginRegister(adminLoginRouter)
 	}
 
-	// 用户信息
+	//获取用户信息
 	adminRouter := router.Group("/admin")
 	adminRouter.Use(
 		sessions.Sessions("mysession", store),
