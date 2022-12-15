@@ -1,12 +1,13 @@
 package dao
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/pkg/errors"
 	"go_gateway/dto"
 	"go_gateway/public"
-	"gorm.io/gorm"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
+	"gorm.io/gorm"
 )
 
 type Admin struct {
@@ -16,7 +17,7 @@ type Admin struct {
 	Password  string    `json:"password" gorm:"column:password" description:"密码"`
 	UpdatedAt time.Time `json:"update_at" gorm:"column:update_at" description:"更新时间"`
 	CreatedAt time.Time `json:"create_at" gorm:"column:create_at" description:"创建时间"`
-	IsDelete  int       `json:"is_delete" gorm:"column:is_delete" description:"创建时间"`
+	IsDelete  int       `json:"is_delete" gorm:"column:is_delete" description:"是否删除"`
 }
 
 func (t *Admin) TableName() string {
