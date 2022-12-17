@@ -1,7 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "contact": {},
+        "license": {}
     },
     "paths": {
         "/admin/admin_info": {
@@ -22,19 +23,7 @@
                     "200": {
                         "description": "success",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/middleware.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.AdminInfoOutput"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/middleware.Response"
                         }
                     }
                 }
@@ -69,19 +58,7 @@
                     "200": {
                         "description": "success",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/middleware.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/middleware.Response"
                         }
                     }
                 }
@@ -116,19 +93,7 @@
                     "200": {
                         "description": "success",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/middleware.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/dto.AdminLoginOutput"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/middleware.Response"
                         }
                     }
                 }
@@ -152,19 +117,53 @@
                     "200": {
                         "description": "success",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/middleware.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/middleware.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/service/service_list": {
+            "get": {
+                "description": "服务列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "服务管理"
+                ],
+                "summary": "服务列表",
+                "operationId": "/service/service_list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "关键词",
+                        "name": "info",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页个数",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "当前页数",
+                        "name": "page_no",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.Response"
                         }
                     }
                 }
@@ -172,32 +171,6 @@
         }
     },
     "definitions": {
-        "dto.AdminInfoOutput": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "introduction": {
-                    "type": "string"
-                },
-                "login_time": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "roles": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
         "dto.AdminLoginInput": {
             "type": "object",
             "required": [
@@ -217,16 +190,6 @@
                 }
             }
         },
-        "dto.AdminLoginOutput": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "description": "token",
-                    "type": "string",
-                    "example": "token"
-                }
-            }
-        },
         "dto.ChangePwdInput": {
             "type": "object",
             "required": [
@@ -243,37 +206,22 @@
         "middleware.Response": {
             "type": "object",
             "properties": {
-                "data": {},
+                "data": {
+                    "type": "object"
+                },
                 "errmsg": {
                     "type": "string"
                 },
                 "errno": {
-                    "$ref": "#/definitions/middleware.ResponseCode"
+                    "type": "integer"
                 },
-                "stack": {},
-                "trace_id": {}
+                "stack": {
+                    "type": "object"
+                },
+                "trace_id": {
+                    "type": "object"
+                }
             }
-        },
-        "middleware.ResponseCode": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                401,
-                1000,
-                2001
-            ],
-            "x-enum-varnames": [
-                "SuccessCode",
-                "UndefErrorCode",
-                "ValidErrorCode",
-                "InternalErrorCode",
-                "InvalidRequestErrorCode",
-                "CustomizeCode",
-                "GROUPALL_SAVE_FLOWERROR"
-            ]
         }
     }
 }

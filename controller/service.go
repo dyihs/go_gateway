@@ -20,17 +20,17 @@ func ServiceRegister(group *gin.RouterGroup) {
 // @ID /service/service_list
 // @Accept  json
 // @Produce  json
-// @Param polygon body dto.ServiceListInput true "body"
+// @Param info query string false "关键词"
+// @Param page_size query int true "每页个数"
+// @Param page_no query int true "当前页数"
 // @Success 200 {object} middleware.Response{data=dto.ServiceListOutput} "success"
 // @Router /service/service_list [get]
 func (service ServiceController) ServiceList(ctx *gin.Context) {
 	params := &dto.ServiceListInput{}
-	err := params.BindValidParam(ctx)
-	if err != nil {
+	if err := params.BindValidParam(ctx); err != nil {
 		middleware.ResponseError(ctx, 2000, err)
 		return
 	}
-
 	out := &dto.ServiceListOutput{}
 	middleware.ResponseSuccess(ctx, out)
 
