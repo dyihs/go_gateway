@@ -64,12 +64,12 @@ func (service ServiceController) ServiceList(ctx *gin.Context) {
 		clusterSSLPort := lib.GetStringConf("base.cluster.cluster_ssl_port")
 
 		if serviceDetail.Info.LoadType == public.LoadTypeHTTP && serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypePrefixURL &&
-			serviceDetail.HTTPRule.NeedHttps == 1 {
+				serviceDetail.HTTPRule.NeedHttps == 1 {
 			serviceAddr = fmt.Sprintf("%s:%s%s", clusterIP, clusterSSLPort, serviceDetail.HTTPRule.Rule)
 		}
 
 		if serviceDetail.Info.LoadType == public.LoadTypeHTTP && serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypePrefixURL &&
-			serviceDetail.HTTPRule.NeedHttps == 0 {
+				serviceDetail.HTTPRule.NeedHttps == 0 {
 			serviceAddr = fmt.Sprintf("%s:%s%s", clusterIP, clusterPort, serviceDetail.HTTPRule.Rule)
 		}
 
