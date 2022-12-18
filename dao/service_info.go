@@ -37,6 +37,48 @@ func (t *ServiceInfo) Save(ctx *gin.Context, tx *gorm.DB) error {
 	return tx.WithContext(ctx).Save(t).Error
 }
 
+func (t ServiceInfo) ServiceDetail(ctx *gin.Context, tx *gorm.DB, search *ServiceInfo) (*ServiceDetail, error) {
+	httpRule := &HttpRule{ServiceID: search.ID}
+	httpRule, err := httpRule.Find(ctx, tx, httpRule)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	tcpRule := &TcpRule{ServiceID: search.ID}
+	tcpRule, err = tcpRule.Find(ctx, tx, tcpRule)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	grpcRule := &GrpcRule{ServiceID: search.ID}
+	grpcRule, err = grpcRule.Find(ctx, tx, grpcRule)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	accessControl := &AccessControl{ServiceID: search.ID}
+	accessControl, err = accessControl.Find(ctx, tx, accessControl)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	loadBalance := &LoadBalance{ServiceID: search.ID}
+	loadBalance, err = loadBalance.Find(ctx, tx, loadBalance)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, err
+	}
+
+	detail := &ServiceDetail{
+		Info:          search,
+		HTTPRule:      httpRule,
+		TCPRule:       tcpRule,
+		GRPCRule:      grpcRule,
+		LoadBalance:   loadBalance,
+		AccessControl: accessControl,
+	}
+	return detail, nil
+}
+
 // PageList 分页
 func (t *ServiceInfo) PageList(ctx *gin.Context, tx *gorm.DB, param *dto.ServiceListInput) ([]ServiceInfo, int64, error) {
 	total := int64(0)
@@ -46,7 +88,7 @@ func (t *ServiceInfo) PageList(ctx *gin.Context, tx *gorm.DB, param *dto.Service
 	query := tx.WithContext(ctx)
 	query = query.Table(t.TableName()).Where("is_delete=0")
 	if param.Info != "" {
-		query = query.Where("(service_name like %?% or service_desc like %?%)", param.Info, param.Info)
+		query = query.Where("(service_name like ? or service_desc like ?)", "%"+param.Info+"%", "%"+param.Info+"%")
 	}
 	err := query.Limit(param.PageSize).Offset(offset).Find(&list).Error
 	if err != nil && err != gorm.ErrRecordNotFound {

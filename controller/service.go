@@ -1,11 +1,13 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/e421083458/golang_common/lib"
 	"github.com/gin-gonic/gin"
 	"go_gateway/dao"
 	"go_gateway/dto"
 	"go_gateway/middleware"
+	"go_gateway/public"
 )
 
 type ServiceController struct{}
@@ -38,19 +40,60 @@ func (service ServiceController) ServiceList(ctx *gin.Context) {
 		middleware.ResponseError(ctx, 2001, err)
 		return
 	}
+	// 从DB中分页读取基本信息
 	serviceInfo := &dao.ServiceInfo{}
 	list, total, err := serviceInfo.PageList(ctx, tx, params)
 	if err != nil {
 		middleware.ResponseError(ctx, 2002, err)
 		return
 	}
-
+	// 格式化输出信息
 	var outList []dto.ServiceListItemOutput
 	for _, listItem := range list {
+		serviceDetail, err := listItem.ServiceDetail(ctx, tx, &listItem)
+		if err != nil {
+			middleware.ResponseError(ctx, 2003, err)
+			return
+		}
+		serviceAddr := "unknown"
+		// 1. http后缀接入 clusterIP+clusterPort+path
+		// 2. http域名接入 domain
+		// 3. tcp、grpc 接入 clusterIP+servicePort
+		clusterIP := lib.GetStringConf("base.cluster.cluster_ip")
+		clusterPort := lib.GetStringConf("base.cluster.cluster_port")
+		clusterSSLPort := lib.GetStringConf("base.cluster.cluster_ssl_port")
+
+		if serviceDetail.Info.LoadType == public.LoadTypeHTTP && serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypePrefixURL &&
+			serviceDetail.HTTPRule.NeedHttps == 1 {
+			serviceAddr = fmt.Sprintf("%s:%s%s", clusterIP, clusterSSLPort, serviceDetail.HTTPRule.Rule)
+		}
+
+		if serviceDetail.Info.LoadType == public.LoadTypeHTTP && serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypePrefixURL &&
+			serviceDetail.HTTPRule.NeedHttps == 0 {
+			serviceAddr = fmt.Sprintf("%s:%s%s", clusterIP, clusterPort, serviceDetail.HTTPRule.Rule)
+		}
+
+		if serviceDetail.Info.LoadType == public.LoadTypeHTTP && serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypeDomain {
+			serviceAddr = serviceDetail.HTTPRule.Rule
+		}
+
+		if serviceDetail.Info.LoadType == public.LoadTypeTCP {
+			serviceAddr = fmt.Sprintf("%s:%d", clusterIP, serviceDetail.TCPRule.Port)
+		}
+
+		if serviceDetail.Info.LoadType == public.LoadTypeGRPC {
+			serviceAddr = fmt.Sprintf("%s:%d", clusterIP, serviceDetail.GRPCRule.Port)
+		}
+
+		ipList := serviceDetail.LoadBalance.GetIPListByModel()
 		outItem := dto.ServiceListItemOutput{
 			ID:          listItem.ID,
 			ServiceName: listItem.ServiceName,
 			ServiceDesc: listItem.ServiceDesc,
+			ServiceAddr: serviceAddr,
+			Qps:         0,
+			Qpd:         0,
+			TotalNode:   len(ipList),
 		}
 		outList = append(outList, outItem)
 	}
