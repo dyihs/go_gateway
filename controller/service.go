@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"github.com/e421083458/golang_common/lib"
 	"github.com/gin-gonic/gin"
+	"github.com/pkg/errors"
 	"go_gateway/dao"
 	"go_gateway/dto"
 	"go_gateway/middleware"
 	"go_gateway/public"
+	"strings"
 )
 
 type ServiceController struct{}
@@ -16,6 +18,7 @@ func ServiceRegister(group *gin.RouterGroup) {
 	service := &ServiceController{}
 	group.GET("/service_list", service.ServiceList)
 	group.GET("/service_delete", service.ServiceDelete)
+	group.POST("/service_add_http", service.ServiceAddHTTP)
 }
 
 // ServiceList godoc
@@ -30,7 +33,7 @@ func ServiceRegister(group *gin.RouterGroup) {
 // @Param page_no query int true "当前页数"
 // @Success 200 {object} middleware.Response{data=dto.ServiceListOutput} "success"
 // @Router /service/service_list [get]
-func (service ServiceController) ServiceList(ctx *gin.Context) {
+func (service *ServiceController) ServiceList(ctx *gin.Context) {
 	params := &dto.ServiceListInput{}
 	if err := params.BindValidParam(ctx); err != nil {
 		middleware.ResponseError(ctx, 2000, err)
@@ -65,23 +68,19 @@ func (service ServiceController) ServiceList(ctx *gin.Context) {
 		clusterSSLPort := lib.GetStringConf("base.cluster.cluster_ssl_port")
 
 		if serviceDetail.Info.LoadType == public.LoadTypeHTTP && serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypePrefixURL &&
-				serviceDetail.HTTPRule.NeedHttps == 1 {
+			serviceDetail.HTTPRule.NeedHttps == 1 {
 			serviceAddr = fmt.Sprintf("%s:%s%s", clusterIP, clusterSSLPort, serviceDetail.HTTPRule.Rule)
 		}
-
 		if serviceDetail.Info.LoadType == public.LoadTypeHTTP && serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypePrefixURL &&
-				serviceDetail.HTTPRule.NeedHttps == 0 {
+			serviceDetail.HTTPRule.NeedHttps == 0 {
 			serviceAddr = fmt.Sprintf("%s:%s%s", clusterIP, clusterPort, serviceDetail.HTTPRule.Rule)
 		}
-
 		if serviceDetail.Info.LoadType == public.LoadTypeHTTP && serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypeDomain {
 			serviceAddr = serviceDetail.HTTPRule.Rule
 		}
-
 		if serviceDetail.Info.LoadType == public.LoadTypeTCP {
 			serviceAddr = fmt.Sprintf("%s:%d", clusterIP, serviceDetail.TCPRule.Port)
 		}
-
 		if serviceDetail.Info.LoadType == public.LoadTypeGRPC {
 			serviceAddr = fmt.Sprintf("%s:%d", clusterIP, serviceDetail.GRPCRule.Port)
 		}
@@ -116,7 +115,7 @@ func (service ServiceController) ServiceList(ctx *gin.Context) {
 // @Param id query string true "服务ID"
 // @Success 200 {object} middleware.Response{data=string} "success"
 // @Router /service/service_delete [get]
-func (service ServiceController) ServiceDelete(ctx *gin.Context) {
+func (service *ServiceController) ServiceDelete(ctx *gin.Context) {
 	params := &dto.ServiceDeleteInput{}
 	if err := params.BindValidParam(ctx); err != nil {
 		middleware.ResponseError(ctx, 2000, err)
@@ -142,5 +141,49 @@ func (service ServiceController) ServiceDelete(ctx *gin.Context) {
 		return
 	}
 
+	middleware.ResponseSuccess(ctx, "")
+}
+
+// ServiceAddHTTP godoc
+// @Summary 添加HTTP服务
+// @Description 添加HTTP服务
+// @Tags 服务管理
+// @ID /service/service_add_http
+// @Accept  json
+// @Produce  json
+// @Param polygon body dto.ServiceAddHTTPInput true "body"
+// @Success 200 {object} middleware.Response{data=string} "success"
+// @Router /service/service_add_http [post]
+func (service *ServiceController) ServiceAddHTTP(ctx *gin.Context) {
+	params := &dto.ServiceAddHTTPInput{}
+	err := params.BindValidParam(ctx)
+	if err != nil {
+		middleware.ResponseError(ctx, 2000, err)
+		return
+	}
+
+	tx, err := lib.GetGormPool("default")
+	if err != nil {
+		middleware.ResponseError(ctx, 2001, err)
+		return
+	}
+
+	serviceInfo := &dao.ServiceInfo{ServiceName: params.ServiceName}
+	if _, err = serviceInfo.Find(ctx, tx, serviceInfo); err != nil {
+		middleware.ResponseError(ctx, 2002, errors.New("服务已存在"))
+		return
+	}
+
+	httpUrl := &dao.HttpRule{RuleType: params.RuleType, Rule: params.Rule}
+	if _, err = httpUrl.Find(ctx, tx, httpUrl); err == nil {
+		middleware.ResponseError(ctx, 2003, errors.New("服务接入前缀或域名已存在"))
+		return
+	}
+	LenIpList := len(strings.Split(params.IpList, "\n"))
+	LenWeightList := len(strings.Split(params.WeightList, "\n"))
+	if LenIpList != LenWeightList {
+		middleware.ResponseError(ctx, 2004, errors.New("IP列表和权重列表数量不一致"))
+		return
+	}
 	middleware.ResponseSuccess(ctx, "")
 }
