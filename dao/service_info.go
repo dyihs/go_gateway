@@ -24,7 +24,7 @@ func (t *ServiceInfo) TableName() string {
 
 func (t *ServiceInfo) Find(ctx *gin.Context, tx *gorm.DB, search *ServiceInfo) (*ServiceInfo, error) {
 	out := &ServiceInfo{}
-	//err := tx.SetCtx(public.GetGinTraceContext(ctx)).Where(search).Find(out).Error
+	// err := tx.SetCtx(public.GetGinTraceContext(ctx)).Where(search).Find(out).Error
 	err := tx.WithContext(ctx).Where(search).Find(out).Error
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (t *ServiceInfo) Find(ctx *gin.Context, tx *gorm.DB, search *ServiceInfo) (
 }
 
 func (t *ServiceInfo) Save(ctx *gin.Context, tx *gorm.DB) error {
-	//err := tx.SetCtx(public.GetGinTraceContext(ctx)).Where(search).Find(out).Error
+	// err := tx.SetCtx(public.GetGinTraceContext(ctx)).Where(search).Find(out).Error
 	return tx.WithContext(ctx).Save(t).Error
 }
 
@@ -82,7 +82,7 @@ func (t ServiceInfo) ServiceDetail(ctx *gin.Context, tx *gorm.DB, search *Servic
 // PageList 分页
 func (t *ServiceInfo) PageList(ctx *gin.Context, tx *gorm.DB, param *dto.ServiceListInput) ([]ServiceInfo, int64, error) {
 	total := int64(0)
-	//list := []ServiceInfo{}
+	// list := []ServiceInfo{}
 	var list []ServiceInfo
 	offset := (param.PageNo - 1) * param.PageSize
 	query := tx.WithContext(ctx)
@@ -90,7 +90,7 @@ func (t *ServiceInfo) PageList(ctx *gin.Context, tx *gorm.DB, param *dto.Service
 	if param.Info != "" {
 		query = query.Where("(service_name like ? or service_desc like ?)", "%"+param.Info+"%", "%"+param.Info+"%")
 	}
-	err := query.Limit(param.PageSize).Offset(offset).Find(&list).Error
+	err := query.Limit(param.PageSize).Offset(offset).Order("id desc").Find(&list).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, 0, err
 	}
