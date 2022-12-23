@@ -67,15 +67,18 @@ func (service *ServiceController) ServiceList(ctx *gin.Context) {
 		clusterPort := lib.GetStringConf("base.cluster.cluster_port")
 		clusterSSLPort := lib.GetStringConf("base.cluster.cluster_ssl_port")
 
-		if serviceDetail.Info.LoadType == public.LoadTypeHTTP && serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypePrefixURL &&
-			serviceDetail.HTTPRule.NeedHttps == 1 {
+		if serviceDetail.Info.LoadType == public.LoadTypeHTTP &&
+				serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypePrefixURL &&
+				serviceDetail.HTTPRule.NeedHttps == 1 {
 			serviceAddr = fmt.Sprintf("%s:%s%s", clusterIP, clusterSSLPort, serviceDetail.HTTPRule.Rule)
 		}
-		if serviceDetail.Info.LoadType == public.LoadTypeHTTP && serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypePrefixURL &&
-			serviceDetail.HTTPRule.NeedHttps == 0 {
+		if serviceDetail.Info.LoadType == public.LoadTypeHTTP &&
+				serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypePrefixURL &&
+				serviceDetail.HTTPRule.NeedHttps == 0 {
 			serviceAddr = fmt.Sprintf("%s:%s%s", clusterIP, clusterPort, serviceDetail.HTTPRule.Rule)
 		}
-		if serviceDetail.Info.LoadType == public.LoadTypeHTTP && serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypeDomain {
+		if serviceDetail.Info.LoadType == public.LoadTypeHTTP &&
+				serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypeDomain {
 			serviceAddr = serviceDetail.HTTPRule.Rule
 		}
 		if serviceDetail.Info.LoadType == public.LoadTypeTCP {
@@ -169,7 +172,7 @@ func (service *ServiceController) ServiceAddHTTP(ctx *gin.Context) {
 	}
 
 	serviceInfo := &dao.ServiceInfo{ServiceName: params.ServiceName}
-	if _, err = serviceInfo.Find(ctx, tx, serviceInfo); err != nil {
+	if _, err = serviceInfo.Find(ctx, tx, serviceInfo); err == nil {
 		middleware.ResponseError(ctx, 2002, errors.New("服务已存在"))
 		return
 	}
