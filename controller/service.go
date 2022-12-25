@@ -68,17 +68,17 @@ func (service *ServiceController) ServiceList(ctx *gin.Context) {
 		clusterSSLPort := lib.GetStringConf("base.cluster.cluster_ssl_port")
 
 		if serviceDetail.Info.LoadType == public.LoadTypeHTTP &&
-				serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypePrefixURL &&
-				serviceDetail.HTTPRule.NeedHttps == 1 {
+			serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypePrefixURL &&
+			serviceDetail.HTTPRule.NeedHttps == 1 {
 			serviceAddr = fmt.Sprintf("%s:%s%s", clusterIP, clusterSSLPort, serviceDetail.HTTPRule.Rule)
 		}
 		if serviceDetail.Info.LoadType == public.LoadTypeHTTP &&
-				serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypePrefixURL &&
-				serviceDetail.HTTPRule.NeedHttps == 0 {
+			serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypePrefixURL &&
+			serviceDetail.HTTPRule.NeedHttps == 0 {
 			serviceAddr = fmt.Sprintf("%s:%s%s", clusterIP, clusterPort, serviceDetail.HTTPRule.Rule)
 		}
 		if serviceDetail.Info.LoadType == public.LoadTypeHTTP &&
-				serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypeDomain {
+			serviceDetail.HTTPRule.RuleType == public.HTTPRuleTypeDomain {
 			serviceAddr = serviceDetail.HTTPRule.Rule
 		}
 		if serviceDetail.Info.LoadType == public.LoadTypeTCP {
@@ -154,39 +154,39 @@ func (service *ServiceController) ServiceDelete(ctx *gin.Context) {
 // @ID /service/service_add_http
 // @Accept  json
 // @Produce  json
-// @Param polygon body dto.ServiceAddHTTPInput true "body"
+// @Param polygon body  dto.ServiceAddHTTPInput true "body"
 // @Success 200 {object} middleware.Response{data=string} "success"
 // @Router /service/service_add_http [post]
-func (service *ServiceController) ServiceAddHTTP(ctx *gin.Context) {
+func (service *ServiceController) ServiceAddHTTP(c *gin.Context) {
 	params := &dto.ServiceAddHTTPInput{}
-	err := params.BindValidParam(ctx)
-	if err != nil {
-		middleware.ResponseError(ctx, 2000, err)
+	if err := params.BindValidParam(c); err != nil {
+		middleware.ResponseError(c, 2000, err)
+		return
+	}
+
+	if len(strings.Split(params.IpList, ",")) != len(strings.Split(params.WeightList, ",")) {
+		middleware.ResponseError(c, 2004, errors.New("IP列表与权重列表数量不一致"))
 		return
 	}
 
 	tx, err := lib.GetGormPool("default")
 	if err != nil {
-		middleware.ResponseError(ctx, 2001, err)
+		middleware.ResponseError(c, 2001, err)
 		return
 	}
-
+	tx = tx.Begin()
 	serviceInfo := &dao.ServiceInfo{ServiceName: params.ServiceName}
-	if _, err = serviceInfo.Find(ctx, tx, serviceInfo); err == nil {
-		middleware.ResponseError(ctx, 2002, errors.New("服务已存在"))
+	if _, err = serviceInfo.Find(c, tx, serviceInfo); err != nil {
+		tx.Rollback()
+		middleware.ResponseError(c, 2002, errors.New("服务已存在"))
 		return
 	}
 
 	httpUrl := &dao.HttpRule{RuleType: params.RuleType, Rule: params.Rule}
-	if _, err = httpUrl.Find(ctx, tx, httpUrl); err == nil {
-		middleware.ResponseError(ctx, 2003, errors.New("服务接入前缀或域名已存在"))
+	if _, err := httpUrl.Find(c, tx, httpUrl); err != nil {
+		tx.Rollback()
+		middleware.ResponseError(c, 2003, errors.New("服务接入前缀或域名已存在"))
 		return
 	}
-	LenIpList := len(strings.Split(params.IpList, "\n"))
-	LenWeightList := len(strings.Split(params.WeightList, "\n"))
-	if LenIpList != LenWeightList {
-		middleware.ResponseError(ctx, 2004, errors.New("IP列表和权重列表数量不一致"))
-		return
-	}
-	middleware.ResponseSuccess(ctx, "")
+	middleware.ResponseSuccess(c, "")
 }

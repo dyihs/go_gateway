@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/locales/en"
 	"github.com/go-playground/locales/zh"
@@ -65,7 +66,7 @@ func TranslationMiddleware() gin.HandlerFunc {
 				if fl.Field().String() == "" {
 					return true
 				}
-				for _, ms := range strings.Split(fl.Field().String(), "\n") {
+				for _, ms := range strings.Split(fl.Field().String(), ",") {
 					if len(strings.Split(ms, " ")) != 2 {
 						return false
 					}
@@ -77,25 +78,39 @@ func TranslationMiddleware() gin.HandlerFunc {
 				if fl.Field().String() == "" {
 					return true
 				}
-				for _, ms := range strings.Split(fl.Field().String(), "\n") {
+				for _, ms := range strings.Split(fl.Field().String(), ",") {
 					if len(strings.Split(ms, " ")) != 3 {
 						return false
 					}
 				}
 				return true
 			})
-			// ip列表
-			val.RegisterValidation("valid_ip_list", func(fl validator.FieldLevel) bool {
-				for _, ms := range strings.Split(fl.Field().String(), "\n") {
+
+			val.RegisterValidation("valid_ipportlist", func(fl validator.FieldLevel) bool {
+				for _, ms := range strings.Split(fl.Field().String(), ",") {
 					if matched, _ := regexp.Match(`^\S+\:\d+$`, []byte(ms)); !matched {
 						return false
 					}
 				}
 				return true
 			})
-			// 权重列表
-			val.RegisterValidation("valid_weight_list", func(fl validator.FieldLevel) bool {
-				for _, ms := range strings.Split(fl.Field().String(), "\n") {
+
+			val.RegisterValidation("valid_iplist", func(fl validator.FieldLevel) bool {
+				if fl.Field().String() == "" {
+					return true
+				}
+				for _, item := range strings.Split(fl.Field().String(), ",") {
+					matched, _ := regexp.Match(`\S+`, []byte(item)) // ip_addr
+					if !matched {
+						return false
+					}
+				}
+				return true
+			})
+
+			val.RegisterValidation("valid_weightlist", func(fl validator.FieldLevel) bool {
+				fmt.Println(fl.Field().String())
+				for _, ms := range strings.Split(fl.Field().String(), ",") {
 					if matched, _ := regexp.Match(`^\d+$`, []byte(ms)); !matched {
 						return false
 					}
@@ -111,46 +126,46 @@ func TranslationMiddleware() gin.HandlerFunc {
 				t, _ := ut.T("valid_username", fe.Field())
 				return t
 			})
-
 			val.RegisterTranslation("valid_service_name", trans, func(ut ut.Translator) error {
 				return ut.Add("valid_service_name", "{0} 不符合输入格式", true)
 			}, func(ut ut.Translator, fe validator.FieldError) string {
 				t, _ := ut.T("valid_service_name", fe.Field())
 				return t
 			})
-
 			val.RegisterTranslation("valid_rule", trans, func(ut ut.Translator) error {
 				return ut.Add("valid_rule", "{0} 必须是非空字符", true)
 			}, func(ut ut.Translator, fe validator.FieldError) string {
 				t, _ := ut.T("valid_rule", fe.Field())
 				return t
 			})
-
 			val.RegisterTranslation("valid_url_rewrite", trans, func(ut ut.Translator) error {
 				return ut.Add("valid_url_rewrite", "{0} 不符合输入格式", true)
 			}, func(ut ut.Translator, fe validator.FieldError) string {
 				t, _ := ut.T("valid_url_rewrite", fe.Field())
 				return t
 			})
-
 			val.RegisterTranslation("valid_header_transfor", trans, func(ut ut.Translator) error {
 				return ut.Add("valid_header_transfor", "{0} 不符合输入格式", true)
 			}, func(ut ut.Translator, fe validator.FieldError) string {
 				t, _ := ut.T("valid_header_transfor", fe.Field())
 				return t
 			})
-			// ip列表
-			val.RegisterTranslation("valid_ip_list", trans, func(ut ut.Translator) error {
-				return ut.Add("valid_ip_list", "{0} 不符合输入格式", true)
+			val.RegisterTranslation("valid_ipportlist", trans, func(ut ut.Translator) error {
+				return ut.Add("valid_ipportlist", "{0} 不符合输入格式", true)
 			}, func(ut ut.Translator, fe validator.FieldError) string {
-				t, _ := ut.T("valid_ip_list", fe.Field())
+				t, _ := ut.T("valid_ipportlist", fe.Field())
 				return t
 			})
-			// 权重列表
-			val.RegisterTranslation("valid_weight_list", trans, func(ut ut.Translator) error {
-				return ut.Add("valid_weight_list", "{0} 不符合输入格式", true)
+			val.RegisterTranslation("valid_iplist", trans, func(ut ut.Translator) error {
+				return ut.Add("valid_iplist", "{0} 不符合输入格式", true)
 			}, func(ut ut.Translator, fe validator.FieldError) string {
-				t, _ := ut.T("valid_weight_list", fe.Field())
+				t, _ := ut.T("valid_iplist", fe.Field())
+				return t
+			})
+			val.RegisterTranslation("valid_weightlist", trans, func(ut ut.Translator) error {
+				return ut.Add("valid_weightlist", "{0} 不符合输入格式", true)
+			}, func(ut ut.Translator, fe validator.FieldError) string {
+				t, _ := ut.T("valid_weightlist", fe.Field())
 				return t
 			})
 			break
