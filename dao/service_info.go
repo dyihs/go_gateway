@@ -22,21 +22,6 @@ func (t *ServiceInfo) TableName() string {
 	return "gateway_service_info"
 }
 
-func (t *ServiceInfo) Find(ctx *gin.Context, tx *gorm.DB, search *ServiceInfo) (*ServiceInfo, error) {
-	out := &ServiceInfo{}
-	// err := tx.SetCtx(public.GetGinTraceContext(ctx)).Where(search).Find(out).Error
-	err := tx.WithContext(ctx).Where(search).Find(out).Error
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (t *ServiceInfo) Save(ctx *gin.Context, tx *gorm.DB) error {
-	// err := tx.SetCtx(public.GetGinTraceContext(ctx)).Where(search).Find(out).Error
-	return tx.WithContext(ctx).Save(t).Error
-}
-
 func (t ServiceInfo) ServiceDetail(ctx *gin.Context, tx *gorm.DB, search *ServiceInfo) (*ServiceDetail, error) {
 	httpRule := &HttpRule{ServiceID: search.ID}
 	httpRule, err := httpRule.Find(ctx, tx, httpRule)
@@ -96,4 +81,17 @@ func (t *ServiceInfo) PageList(ctx *gin.Context, tx *gorm.DB, param *dto.Service
 	}
 	query.Limit(param.PageSize).Offset(offset).Count(&total)
 	return list, total, nil
+}
+
+func (t *ServiceInfo) Find(c *gin.Context, tx *gorm.DB, search *ServiceInfo) (*ServiceInfo, error) {
+	out := &ServiceInfo{}
+	err := tx.WithContext(c).Where(search).Find(out).Error
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (t *ServiceInfo) Save(c *gin.Context, tx *gorm.DB) error {
+	return tx.WithContext(c).Save(t).Error
 }
