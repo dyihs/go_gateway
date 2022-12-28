@@ -46,7 +46,6 @@ func (t *App) APPList(c *gin.Context, tx *gorm.DB, params *dto.APPListInput) ([]
 	pageNo := params.PageNo
 	pageSize := params.PageSize
 
-	// limit offset,pagesize
 	offset := (pageNo - 1) * pageSize
 	query := tx.WithContext(c)
 	query = query.Table(t.TableName()).Select("*")

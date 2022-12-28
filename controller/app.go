@@ -160,7 +160,7 @@ func (admin *APPController) AppAdd(c *gin.Context) {
 	search := &dao.App{
 		AppID: params.AppID,
 	}
-	if _, err := search.Find(c, lib.GORMDefaultPool, search); err == nil {
+	if _, err := search.Find(c, lib.GORMDefaultPool, search); err != nil {
 		middleware.ResponseError(c, 2002, errors.New("租户ID被占用，请重新输入"))
 		return
 	}
