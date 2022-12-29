@@ -601,6 +601,22 @@ paths:
       summary: 租户更新
       tags:
       - 租户管理
+  /dashboard/panelGroupData:
+    get:
+      consumes:
+      - application/json
+      description: 指标统计
+      operationId: /dashboard/panelGroupData
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/middleware.Response'
+      summary: 指标统计
+      tags:
+      - 首页大盘
   /service/service_add_grpc:
     post:
       consumes:

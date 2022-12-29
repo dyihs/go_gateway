@@ -338,6 +338,30 @@
                 }
             }
         },
+        "/dashboard/panelGroupData": {
+            "get": {
+                "description": "指标统计",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "首页大盘"
+                ],
+                "summary": "指标统计",
+                "operationId": "/dashboard/panelGroupData",
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "$ref": "#/definitions/middleware.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/service/service_add_grpc": {
             "post": {
                 "description": "grpc服务添加",
